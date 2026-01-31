@@ -4,29 +4,31 @@ import { CharacterDef, DialogueSegment, ScriptAnalysis, VoiceBase, VoiceModel } 
 
 const getApiKey = () => process.env.API_KEY || "";
 
-export const VOICE_MODELS: VoiceModel[] = [
-  { id: 'ljs-01', name: 'LJSpeech-v1', dataset: 'LJSpeech', description: 'Clear narrative monologue voice.', baseVoice: 'Kore', tags: ['Narrative', 'Steady'] },
-  { id: 'rms-male', name: 'Arctic-RMS', dataset: 'CMU Arctic', description: 'Deep, resonant male voice.', baseVoice: 'Fenrir', tags: ['Deep', 'Male'] },
-  { id: 'slt-female', name: 'Arctic-SLT', dataset: 'CMU Arctic', description: 'Precise and soft female articulation.', baseVoice: 'Puck', tags: ['Gentle', 'Female'] },
-  { id: 'uk-elder', name: 'Common-UK', dataset: 'Mozilla', description: 'Sophisticated elderly British tone.', baseVoice: 'Charon', tags: ['Elderly', 'British'] },
-  { id: 'vctk-youth', name: 'VCTK-Youth', dataset: 'Mozilla', description: 'Fast, modern, energetic young adult.', baseVoice: 'Zephyr', tags: ['Energetic', 'Youth'] },
-  { id: 'ghost-ethereal', name: 'Aether-Ghost', dataset: 'Custom', description: 'Whispering, hollow supernatural tone.', baseVoice: 'Charon', tags: ['Ghostly', 'Paranormal'] },
-  { id: 'infant-01', name: 'Aether-Infant', dataset: 'Custom', description: 'High-pitched, babbling newborn sounds.', baseVoice: 'Puck', tags: ['Newborn', 'Soft'] },
-  { id: 'deep-bass', name: 'Mozilla-Deep', dataset: 'Mozilla', description: 'Ultra-low frequency authoritative voice.', baseVoice: 'Fenrir', tags: ['Bass', 'Power'] },
-  { id: 'fest-bot', name: 'Festvox-Robot', dataset: 'Festvox', description: 'Flat, analytical machine intelligence.', baseVoice: 'Zephyr', tags: ['Machine', 'Flat'] },
-  { id: 'synth-real', name: 'Synth-01', dataset: 'Custom', description: 'Hyper-realistic balanced studio voice.', baseVoice: 'Kore', tags: ['Premium', 'Pro'] }
+/**
+ * 10 Neural Models mapped to public/custom datasets.
+ * These act as the 'Voice Clones' base for the synthesis engine.
+ */
+export const NEURAL_MODELS: VoiceModel[] = [
+  { id: 'ljs-v1', name: 'LJ-Narrator', dataset: 'LJSpeech', description: 'Classic female narrative voice, high consistency.', baseVoice: 'Kore', tags: ['Narrative', 'Studio'] },
+  { id: 'arc-rms', name: 'Arctic-Male', dataset: 'CMU Arctic', description: 'Authoritative male voice (RMS speaker).', baseVoice: 'Fenrir', tags: ['Authoritative', 'Male'] },
+  { id: 'arc-slt', name: 'Arctic-Female', dataset: 'CMU Arctic', description: 'Soft, precise female voice (SLT speaker).', baseVoice: 'Puck', tags: ['Gentle', 'Female'] },
+  { id: 'moz-uk', name: 'Common-UK', dataset: 'Mozilla', description: 'Sophisticated British Received Pronunciation.', baseVoice: 'Charon', tags: ['Sophisticated', 'British'] },
+  { id: 'moz-youth', name: 'Common-Youth', dataset: 'Mozilla', description: 'Casual, fast-paced millennial vocal fry.', baseVoice: 'Zephyr', tags: ['Casual', 'Modern'] },
+  { id: 'fes-awb', name: 'Festvox-Scot', dataset: 'Festvox', description: 'Warm Scottish-accented male narrative.', baseVoice: 'Charon', tags: ['Accented', 'Warm'] },
+  { id: 'fes-bdl', name: 'Festvox-US', dataset: 'Festvox', description: 'Neutral Midwestern US male broadcast.', baseVoice: 'Zephyr', tags: ['Broadcast', 'Neutral'] },
+  { id: 'ae-prime', name: 'Aether-Prime', dataset: 'Aether-Neural', description: 'Our custom zero-shot balanced model.', baseVoice: 'Kore', tags: ['Premium', 'Balanced'] },
+  { id: 'ae-dark', name: 'Aether-Shadow', dataset: 'Aether-Neural', description: 'Deep, whispered, and atmospheric.', baseVoice: 'Fenrir', tags: ['Atmospheric', 'Deep'] },
+  { id: 'ae-light', name: 'Aether-Breeze', dataset: 'Aether-Neural', description: 'Airy, high-frequency female breathiness.', baseVoice: 'Puck', tags: ['Airy', 'Delicate'] }
 ];
 
 export function pcmToWav(pcmData: Uint8Array, sampleRate: number = 24000): Blob {
   const header = new ArrayBuffer(44);
   const view = new DataView(header);
-  view.setUint32(0, 0x52494646, false); // "RIFF"
+  view.setUint32(0, 0x52494646, false); 
   view.setUint32(4, 36 + pcmData.length, true); 
-  view.setUint32(8, 0x57415645, false); // "WAVE"
-  view.setUint32(12, 0x666d7420, false); 
-  view.setUint32(16, 16, true); 
-  view.setUint16(20, 1, true);
-  view.setUint16(22, 1, true);
+  view.setUint32(8, 0x57415645, false); 
+  view.setUint16(20, 1, true); 
+  view.setUint16(22, 1, true); 
   view.setUint32(24, sampleRate, true); 
   view.setUint32(28, sampleRate * 2, true); 
   view.setUint16(32, 2, true); 
@@ -42,9 +44,7 @@ export function base64ToUint8Array(base64: string): Uint8Array {
     const bytes = new Uint8Array(binaryString.length);
     for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
     return bytes;
-  } catch (e) {
-    return new Uint8Array(0);
-  }
+  } catch (e) { return new Uint8Array(0); }
 }
 
 export async function decodeAudioData(data: Uint8Array, ctx: AudioContext, sampleRate: number = 24000): Promise<AudioBuffer> {
@@ -61,10 +61,12 @@ export const analyzeScript = async (text: string): Promise<ScriptAnalysis> => {
   const ai = new GoogleGenAI({ apiKey });
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
-    contents: `Analyze this script. Map characters to these IDs: ${VOICE_MODELS.map(m => m.id).join(', ')}.
-    Assign settings for stability, clarity, and style (0-100).
+    contents: `Parse this script into a multi-character performance.
+    Map characters to these Neural Model IDs: ${NEURAL_MODELS.map(m => m.id).join(', ')}.
+    Set ElevenLabs-style parameters (0-100) for Stability, Clarity, and Style Exaggeration based on the text's mood.
     
-    Text: ${text}`,
+    Script:
+    ${text}`,
     config: {
       responseMimeType: "application/json",
       responseSchema: {
@@ -121,25 +123,35 @@ export const synthesizeSegment = async (segment: DialogueSegment, character: Cha
   if (!apiKey) throw new Error("API_KEY missing.");
   const ai = new GoogleGenAI({ apiKey });
   
-  const model = VOICE_MODELS.find(m => m.id === character.modelId) || VOICE_MODELS[0];
+  const model = NEURAL_MODELS.find(m => m.id === character.modelId) || NEURAL_MODELS[0];
   const { stability, clarity, styleExaggeration } = character.settings;
 
-  const personaPrompt = `
-    Vocal Performance for "${character.name}" (Model: ${model.name}).
-    Dataset Influence: ${model.dataset}.
+  // Prompt engineered for ElevenLabs style control
+  const performancePrompt = `
+    VOCAL ENGINE INSTRUCTION:
+    Character: ${character.name} (${character.gender}, ${character.ageGroup})
+    Neural Dataset: ${model.dataset} (${model.description})
     
-    Performance Parameters:
-    - Stability: ${stability}% (Higher = more robotic/steady, Lower = more emotional/varied).
-    - Clarity: ${clarity}% (Higher = precise articulation, Lower = natural mumbling/breaths).
-    - Emotion: ${segment.emotion} at Intensity ${segment.intensity}/10.
-    - Style Exaggeration: ${styleExaggeration}% (Higher = more dramatic performance).
-    
-    Text to speak: "${segment.text}"
+    ENGINEERING PARAMETERS:
+    - Stability: ${stability}% 
+      (Low stability allows for more natural voice breaks, emotional cracks, and expressive variation.)
+    - Clarity: ${clarity}% 
+      (High clarity enhances consonants and high frequencies for studio-quality articulation.)
+    - Style Exaggeration: ${styleExaggeration}% 
+      (Determines how aggressively the model leans into the specific traits of the ${model.dataset} dataset.)
+      
+    PERFORMANCE CONTEXT:
+    Emotion: ${segment.emotion} (Intensity: ${segment.intensity}/10)
+    Tone: ${segment.tone}
+    Traits: ${character.traits}
+
+    TEXT TO SYNTHESIZE:
+    "${segment.text}"
   `;
 
   const response = await ai.models.generateContent({
     model: "gemini-2.5-flash-preview-tts",
-    contents: [{ parts: [{ text: personaPrompt }] }],
+    contents: [{ parts: [{ text: performancePrompt }] }],
     config: {
       responseModalities: [Modality.AUDIO],
       speechConfig: {
@@ -151,6 +163,6 @@ export const synthesizeSegment = async (segment: DialogueSegment, character: Cha
   });
 
   const base64 = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-  if (!base64) throw new Error("Synthesis failed.");
+  if (!base64) throw new Error("Neural synthesis pipeline failure.");
   return base64;
 };

@@ -7,15 +7,22 @@ export interface VoiceModel {
   id: string;
   name: string;
   description: string;
-  dataset: 'LJSpeech' | 'CMU Arctic' | 'Mozilla' | 'Festvox' | 'Custom';
+  dataset: 'LJSpeech' | 'CMU Arctic' | 'Mozilla' | 'Festvox' | 'Aether-Neural';
   baseVoice: VoiceBase;
   tags: string[];
 }
 
 export interface VoiceSettings {
-  stability: number; // 0-100
-  clarity: number;   // 0-100
-  styleExaggeration: number; // 0-100
+  stability: number; // 0-100 (Consistency vs Emotion)
+  clarity: number;   // 0-100 (High-freq detail)
+  styleExaggeration: number; // 0-100 (Dramatic weight)
+}
+
+export interface VoicePreset {
+  id: string;
+  name: string;
+  modelId: string;
+  settings: VoiceSettings;
 }
 
 export interface CharacterDef {
