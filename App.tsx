@@ -1,84 +1,93 @@
 
 import React, { useState } from 'react';
-import { Settings, Shield, Cpu, Cloud, Terminal, MessageSquare, Waves, Mic2, Zap } from 'lucide-react';
+import { Settings, Zap, Brain, Terminal, Layers, Sparkles } from 'lucide-react';
 import TTSForm from './components/TTSForm';
-import DeploymentGuide from './components/DeploymentGuide';
 import AudioPlayer from './components/AudioPlayer';
-import TextAnalysisPanel from './components/TextAnalysisPanel';
-import { ScriptAnalysis } from './types';
+import { DirectorialResponse } from './types';
 
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'studio' | 'deploy'>('studio');
-  const [analysis, setAnalysis] = useState<ScriptAnalysis | null>(null);
-  const [audioBlobs, setAudioBlobs] = useState<string[]>([]);
+  const [performance, setPerformance] = useState<DirectorialResponse | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#050505]">
-      <header className="border-b border-white/5 bg-black/80 backdrop-blur-xl sticky top-0 z-[100]">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3 group cursor-pointer">
-            <div className="w-8 h-8 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.4)] group-hover:scale-105 transition-transform">
-              <Zap className="text-white w-4 h-4" />
+    <div className="min-h-screen flex flex-col bg-[#050505] text-white selection:bg-indigo-500/30">
+      <header className="border-b border-white/5 bg-black/60 backdrop-blur-2xl sticky top-0 z-[100]">
+        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-4 group cursor-pointer">
+            <div className="w-10 h-10 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.3)] group-hover:rotate-12 transition-all duration-500">
+              <Zap className="text-white w-5 h-5" />
             </div>
-            <h1 className="text-lg font-bold tracking-tighter text-white">AETHER <span className="text-indigo-500">NEURAL LAB</span></h1>
+            <div>
+              <h1 className="text-lg font-bold tracking-tighter text-white leading-none">AETHER <span className="text-indigo-500">DIRECTOR</span></h1>
+              <p className="text-[9px] text-gray-500 font-bold uppercase tracking-[0.3em] mt-1">Neural Performance Engine</p>
+            </div>
           </div>
           
-          <nav className="hidden md:flex items-center gap-8">
-            <button onClick={() => setActiveTab('studio')} className={`text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${activeTab === 'studio' ? 'text-white border-b-2 border-indigo-500 pb-1' : 'text-gray-500 hover:text-gray-300'}`}>
-              Voice Studio
-            </button>
-            <button onClick={() => setActiveTab('deploy')} className={`text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${activeTab === 'deploy' ? 'text-white border-b-2 border-indigo-500 pb-1' : 'text-gray-500 hover:text-gray-300'}`}>
-              Architecture
-            </button>
-          </nav>
-
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1.5 rounded-full">
-              <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse" />
-              <span className="text-[9px] text-indigo-400 font-bold uppercase tracking-widest">Model: Zero-Shot v4</span>
+          <div className="flex items-center gap-6">
+            <div className="hidden sm:flex items-center gap-2 bg-indigo-500/5 border border-indigo-500/20 px-3 py-1.5 rounded-full">
+              <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_5px_rgba(99,102,241,1)]" />
+              <span className="text-[9px] text-indigo-400 font-bold uppercase tracking-widest">Model: Gemini 3 Pro (Thinking)</span>
             </div>
-            <Settings className="text-gray-500 hover:text-white cursor-pointer w-4 h-4 transition-colors" />
+            <div className="w-px h-6 bg-white/5" />
+            <button className="text-gray-500 hover:text-white transition-colors">
+              <Settings className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </header>
 
-      <main className="flex-1 max-w-7xl mx-auto w-full p-6 md:p-10">
-        {activeTab === 'studio' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            <div className="lg:col-span-8 space-y-8">
-              <TTSForm 
-                onAnalysisComplete={(a) => setAnalysis(a as any)} 
-                onAudioComplete={setAudioBlobs}
-                setIsProcessing={setIsProcessing}
-                isProcessing={isProcessing}
-              />
-              {audioBlobs.length > 0 && (
-                <div className="sticky bottom-6 z-40 animate-in slide-in-from-bottom-6 duration-500">
-                  <AudioPlayer blobs={audioBlobs} />
-                </div>
-              )}
-            </div>
-            <div className="lg:col-span-4">
-              <div className="sticky top-28">
-                <TextAnalysisPanel analysis={analysis as any} isProcessing={isProcessing} />
-              </div>
-            </div>
+      <main className="flex-1 max-w-4xl mx-auto w-full p-6 md:p-12 space-y-12">
+        <section className="text-center space-y-4 max-w-2xl mx-auto pb-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10 mb-4">
+            <Sparkles className="w-3 h-3 text-amber-400" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Experimental Synthesis</span>
           </div>
-        )}
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-b from-white to-gray-500 bg-clip-text text-transparent">
+            Voice Synthesis with Emotional Intelligence.
+          </h2>
+          <p className="text-gray-500 leading-relaxed text-sm md:text-base">
+            Driven by Gemini 3 Pro's reasoning engine. Aether analyzes subtext, tone, and character motivation to direct browser-native voices into human-like performances.
+          </p>
+        </section>
 
-        {activeTab === 'deploy' && <DeploymentGuide />}
+        <div className="space-y-12">
+          <TTSForm 
+            onPerformanceReady={setPerformance}
+            isProcessing={isProcessing}
+            setIsProcessing={setIsProcessing}
+          />
+          
+          <div className="sticky bottom-8 z-50">
+            <AudioPlayer performance={performance} />
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-12">
+          {[
+            { icon: <Brain className="w-4 h-4" />, title: 'Thinking Loop', desc: 'Uses 16k reasoning tokens to understand vocal nuance.' },
+            { icon: <Terminal className="w-4 h-4" />, title: 'Local Synthesis', desc: 'No cloud TTS costs. Runs entirely on high-quality local OS voices.' },
+            { icon: <Layers className="w-4 h-4" />, title: 'Story Retry', desc: 'Dynamic feedback allows for recursive performance refinement.' }
+          ].map((feature, i) => (
+            <div key={i} className="bg-white/[0.02] border border-white/5 p-6 rounded-2xl hover:bg-white/[0.04] transition-colors">
+              <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400 mb-4">
+                {feature.icon}
+              </div>
+              <h4 className="font-bold text-sm mb-2">{feature.title}</h4>
+              <p className="text-xs text-gray-500 leading-relaxed">{feature.desc}</p>
+            </div>
+          ))}
+        </div>
       </main>
 
       <footer className="border-t border-white/5 py-12 bg-black/40">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="space-y-1">
-            <p className="text-gray-600 text-[10px] font-bold uppercase tracking-[0.3em]">© 2025 Aether Intelligence Group</p>
-            <p className="text-gray-700 text-[9px] uppercase tracking-widest">Neural weights trained on public domain speech datasets.</p>
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="space-y-1 text-center md:text-left">
+            <p className="text-gray-600 text-[10px] font-bold uppercase tracking-[0.3em]">© 2025 Aether Research Lab</p>
+            <p className="text-gray-700 text-[9px] uppercase tracking-widest">Powered by Google Gemini Reasoning Models</p>
           </div>
           <div className="flex gap-8 text-[10px] font-bold text-gray-600 uppercase tracking-widest">
-            <a href="#" className="hover:text-indigo-400 transition-colors">Neural Policy</a>
-            <a href="#" className="hover:text-indigo-400 transition-colors">API Keys</a>
+            <a href="#" className="hover:text-indigo-400 transition-colors">Neural Safety</a>
+            <a href="#" className="hover:text-indigo-400 transition-colors">Performance API</a>
             <a href="#" className="hover:text-indigo-400 transition-colors">Lab Status</a>
           </div>
         </div>

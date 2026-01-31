@@ -1,50 +1,60 @@
 
-export type VoiceBase = 'Kore' | 'Puck' | 'Charon' | 'Fenrir' | 'Zephyr';
-
-export type CharacterType = 'newborn' | 'child' | 'adult' | 'elder' | 'ghost' | 'paranormal' | 'machine';
-
-export interface VoiceModel {
-  id: string;
-  name: string;
-  description: string;
-  dataset: 'LJSpeech' | 'CMU Arctic' | 'Mozilla' | 'Festvox' | 'Aether-Neural';
-  baseVoice: VoiceBase;
-  tags: string[];
+export interface VocalDirection {
+  pitch: number;    // 0.5 to 2.0
+  rate: number;     // 0.5 to 2.0
+  volume: number;   // 0.0 to 1.0
+  emotion: string;  
+  subtext: string;  // The hidden meaning Gemini found
+  emphasis: string[]; // Words to stress
 }
 
-export interface VoiceSettings {
-  stability: number; // 0-100 (Consistency vs Emotion)
-  clarity: number;   // 0-100 (High-freq detail)
-  styleExaggeration: number; // 0-100 (Dramatic weight)
+export interface PerformanceSegment {
+  id: string;
+  text: string;
+  direction: VocalDirection;
 }
 
-export interface VoicePreset {
-  id: string;
-  name: string;
-  modelId: string;
-  settings: VoiceSettings;
+export interface DirectorialResponse {
+  thinkingProcess: string; // Summary of the "Thinking" phase
+  overallMood: string;
+  segments: PerformanceSegment[];
 }
 
-export interface CharacterDef {
+export interface VoiceProfile {
+  name: string;
+  lang: string;
+  isLocal: boolean;
+  voiceURI: string;
+}
+
+/**
+ * Character categories for script analysis
+ */
+export type CharacterType = 'ghost' | 'paranormal' | 'newborn' | 'child' | 'elder' | 'adult';
+
+/**
+ * Character definition within a script
+ */
+export interface ScriptCharacter {
   id: string;
   name: string;
-  gender: 'male' | 'female' | 'non-binary' | 'unknown';
   ageGroup: CharacterType;
-  modelId: string;
-  traits: string;
-  settings: VoiceSettings;
 }
 
-export interface DialogueSegment {
+/**
+ * A dialogue segment for script analysis
+ */
+export interface ScriptSegment {
   characterId: string;
   text: string;
   emotion: string;
-  intensity: number;
-  tone: string;
 }
 
+/**
+ * Result of the neural script analysis phase
+ */
 export interface ScriptAnalysis {
   summary: string;
-  characters: CharacterDef[];
-  segments: DialogueSegment[];
+  characters: ScriptCharacter[];
+  segments: ScriptSegment[];
 }
