@@ -1,15 +1,31 @@
 
-export type Voice = 'Kore' | 'Puck' | 'Charon' | 'Fenrir' | 'Zephyr';
+export type VoiceBase = 'Kore' | 'Puck' | 'Charon' | 'Fenrir' | 'Zephyr';
 
 export type CharacterType = 'newborn' | 'child' | 'adult' | 'elder' | 'ghost' | 'paranormal' | 'machine';
+
+export interface VoiceModel {
+  id: string;
+  name: string;
+  description: string;
+  dataset: 'LJSpeech' | 'CMU Arctic' | 'Mozilla' | 'Festvox' | 'Custom';
+  baseVoice: VoiceBase;
+  tags: string[];
+}
+
+export interface VoiceSettings {
+  stability: number; // 0-100
+  clarity: number;   // 0-100
+  styleExaggeration: number; // 0-100
+}
 
 export interface CharacterDef {
   id: string;
   name: string;
   gender: 'male' | 'female' | 'non-binary' | 'unknown';
   ageGroup: CharacterType;
-  baseVoice: Voice;
+  modelId: string;
   traits: string;
+  settings: VoiceSettings;
 }
 
 export interface DialogueSegment {
@@ -24,10 +40,4 @@ export interface ScriptAnalysis {
   summary: string;
   characters: CharacterDef[];
   segments: DialogueSegment[];
-}
-
-export interface AudioPlaybackState {
-  isPlaying: boolean;
-  duration: number;
-  currentTime: number;
 }
