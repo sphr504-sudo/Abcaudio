@@ -1,21 +1,29 @@
 
 import React from 'react';
 import { Brain, Heart, Ghost, Baby, User, Star, CloudRain, Zap, ChevronRight } from 'lucide-react';
-import { ScriptAnalysis, CharacterType } from '../types';
+// Fix: Import existing types from types.ts instead of non-existent ones
+import { DirectorialResponse, CharacterDemographic } from '../types';
 
 interface TextAnalysisPanelProps {
-  analysis: ScriptAnalysis | null;
+  // Fix: Use DirectorialResponse instead of ScriptAnalysis
+  analysis: DirectorialResponse | null;
   isProcessing: boolean;
 }
 
-const getTypeIcon = (type: CharacterType) => {
-  switch (type) {
-    case 'ghost':
-    case 'paranormal': return <Ghost className="w-4 h-4 text-purple-400" />;
-    case 'newborn': return <Baby className="w-4 h-4 text-pink-400" />;
-    case 'child': return <Star className="w-4 h-4 text-amber-400" />;
-    case 'elder': return <CloudRain className="w-4 h-4 text-blue-400" />;
-    default: return <User className="w-4 h-4 text-gray-400" />;
+// Fix: Use CharacterDemographic instead of CharacterType and update switch cases for Shrota Studio's demographics
+const getTypeIcon = (demographic?: CharacterDemographic) => {
+  switch (demographic) {
+    case 'Paranormal Ghost': 
+      return <Ghost className="w-4 h-4 text-purple-400" />;
+    case 'Newborn Baby': 
+      return <Baby className="w-4 h-4 text-pink-400" />;
+    case 'Boy Kid':
+    case 'Girl Kid': 
+      return <Star className="w-4 h-4 text-amber-400" />;
+    case 'Old Man': 
+      return <CloudRain className="w-4 h-4 text-blue-400" />;
+    default: 
+      return <User className="w-4 h-4 text-gray-400" />;
   }
 };
 
@@ -48,7 +56,8 @@ const TextAnalysisPanel: React.FC<TextAnalysisPanelProps> = ({ analysis, isProce
           <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400">Story Objective</h3>
         </div>
         <p className="text-gray-200 text-sm leading-relaxed italic border-l-2 border-indigo-500/50 pl-4 py-1 bg-white/[0.02] rounded-r-lg">
-          "{analysis.summary}"
+          {/* Fix: Use overallMood property from DirectorialResponse */}
+          "{analysis.overallMood}"
         </p>
       </div>
 
@@ -64,10 +73,11 @@ const TextAnalysisPanel: React.FC<TextAnalysisPanelProps> = ({ analysis, isProce
               <div key={idx} className="bg-black/20 p-3 rounded-lg border border-white/5 relative group">
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
-                    {getTypeIcon(char?.ageGroup || 'adult')}
+                    {/* Fix: Use demographic property and nested direction.emotion property */}
+                    {getTypeIcon(char?.demographic)}
                     <span className="text-[10px] font-bold text-indigo-400 uppercase">{char?.name}</span>
                   </div>
-                  <span className="text-[9px] text-gray-600 italic uppercase">{seg.emotion}</span>
+                  <span className="text-[9px] text-gray-600 italic uppercase">{seg.direction.emotion}</span>
                 </div>
                 <p className="text-xs text-gray-400 line-clamp-2">{seg.text}</p>
                 <div className="absolute right-2 bottom-2 opacity-0 group-hover:opacity-100 transition-opacity">

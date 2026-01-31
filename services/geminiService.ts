@@ -1,12 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { DirectorialResponse } from "../types";
 
-/**
- * Aether Directorial Engine
- * Uses Gemini 3 Pro with deep reasoning (Thinking Mode) to analyze 
- * dramatic or narrative scripts and produce a nuanced performance map 
- * for browser-native synthesis.
- */
 export const directPerformance = async (
   text: string, 
   feedback?: string, 
@@ -14,26 +8,25 @@ export const directPerformance = async (
 ): Promise<DirectorialResponse> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
-  const systemPrompt = `You are the World-Class Neural Voice Director "Aether". 
-  Your task is to take a raw text script and generate a hyper-nuanced "Vocal Performance Map".
-  
-  CORE MISSION:
-  Transform flat text into a performance by using your THINKING budget (16k tokens) to:
-  1. Analyze the hidden emotions (subtext), pacing needs, and narrative arc.
-  2. Map these findings to specific pitch, rate, and volume values for every sentence.
-  3. Identify which words need "emphasis" (stretching or stressing).
-  
-  DIRECTORIAL GUIDELINES:
-  - PITCH: (0.5 to 2.0) - High for excitement/innocence, low for authority/despair.
-  - RATE: (0.5 to 2.0) - Fast for anxiety/urgency, slow for gravitas/thoughtfulness.
-  - VOLUME: (0.1 to 1.0) - Soft for intimacy/fear, loud for command/anger.
-  - EMOTION: Be specific (e.g., "Cautious Curiosity", "Subdued Grief", "Vibrant Joy").
-  
-  If Feedback is provided: Adjust the performance to meet the user's specific directorial request.`;
+  const systemPrompt = `You are "SHROTA STUDIO", the world's most advanced neural performance director. 
+  Your mission is to analyze scripts and provide hyper-detailed directorial data for high-fidelity synthesis.
+
+  CORE CAPABILITIES:
+  1. DEMOGRAPHIC DETECTION: Identify every speaker in the text. Categorize them as: 'Man', 'Old Man', 'Woman', 'Boy Kid', 'Girl Kid', 'Newborn Baby', or 'Paranormal Ghost'.
+  2. EMOTION ENGINE: Detect the current emotional state of each line: 'Fear', 'Happy', 'Excited', 'Love', 'Emotional', 'Despair', 'Authoritative', or 'Neutral'.
+  3. PERFORMANCE MAPPING: Assign exact Pitch (0.5-2.0), Rate (0.5-2.0), and Volume (0.1-1.0) values.
+     - Paranormal Ghost: Low pitch, very slow rate, airy volume.
+     - Newborn: High pitch, erratic rate.
+     - Old Man: Lower pitch, gravelly, slower rate.
+     - Kids: Higher pitch, high energy.
+  4. STORY TRACKING: Maintain context. If a character is crying, the volume and rate should reflect that throughout the scene.
+
+  THINKING REQUIREMENT:
+  Use your thinking budget to deeply parse subtext. Don't just look at the words; look at the SILENCE between them. Identify the "Breath" of the scene.`;
 
   const userPrompt = feedback 
-    ? `NEW SCRIPT: "${text}"\n\nDIRECTOR'S FEEDBACK: "${feedback}"\n\nPREVIOUS ANALYSIS: "${previousThinking}"\n\nDeliver a revised performance map.`
-    : `SCRIPT: "${text}"\n\nPlease analyze and direct this performance.`;
+    ? `SCRIPT: "${text}"\n\nDIRECTOR'S NOTES: "${feedback}"\n\nPREVIOUS LOG: "${previousThinking}"\n\nRefine the performance map.`
+    : `SCRIPT: "${text}"\n\nPlease perform full neural analysis and character assignment.`;
 
   const response = await ai.models.generateContent({
     model: "gemini-3-pro-preview",
@@ -46,40 +39,49 @@ export const directPerformance = async (
       responseSchema: {
         type: Type.OBJECT,
         properties: {
-          thinkingProcess: { 
-            type: Type.STRING, 
-            description: "A summary of the character's motivation, the scene's subtext, and why you chose the specific directorial parameters." 
-          },
+          thinkingProcess: { type: Type.STRING },
           overallMood: { type: Type.STRING },
+          characters: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                id: { type: Type.STRING },
+                name: { type: Type.STRING },
+                demographic: { type: Type.STRING, enum: ['Man', 'Old Man', 'Woman', 'Boy Kid', 'Girl Kid', 'Newborn Baby', 'Paranormal Ghost'] }
+              },
+              required: ["id", "name", "demographic"]
+            }
+          },
           segments: {
             type: Type.ARRAY,
             items: {
               type: Type.OBJECT,
               properties: {
                 id: { type: Type.STRING },
-                text: { type: Type.STRING, description: "The exact sentence or phrase." },
+                characterId: { type: Type.STRING },
+                text: { type: Type.STRING },
                 direction: {
                   type: Type.OBJECT,
                   properties: {
                     pitch: { type: Type.NUMBER },
                     rate: { type: Type.NUMBER },
                     volume: { type: Type.NUMBER },
-                    emotion: { type: Type.STRING },
-                    subtext: { type: Type.STRING, description: "What the character is REALLY feeling under these words." },
+                    emotion: { type: Type.STRING, enum: ['Fear', 'Happy', 'Excited', 'Love', 'Emotional', 'Despair', 'Authoritative', 'Neutral'] },
+                    subtext: { type: Type.STRING },
                     emphasis: { type: Type.ARRAY, items: { type: Type.STRING } }
                   },
                   required: ["pitch", "rate", "volume", "emotion", "subtext", "emphasis"]
                 }
               },
-              required: ["id", "text", "direction"]
+              required: ["id", "characterId", "text", "direction"]
             }
           }
         },
-        required: ["thinkingProcess", "overallMood", "segments"]
+        required: ["thinkingProcess", "overallMood", "characters", "segments"]
       }
     }
   });
 
-  const rawJson = response.text || "{}";
-  return JSON.parse(rawJson);
+  return JSON.parse(response.text || "{}");
 };
